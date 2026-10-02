@@ -20,5 +20,6 @@ def get_session():
         db.close()
 
 def create_tables():
+    # Force rebuild - models import fixed
     from . import models
     models.Base.metadata.create_all(bind=engine)
