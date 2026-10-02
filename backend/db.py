@@ -20,5 +20,5 @@ def get_session():
         db.close()
 
 def create_tables():
-    import models
+    from . import models
     models.Base.metadata.create_all(bind=engine)
