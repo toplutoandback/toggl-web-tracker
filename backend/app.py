@@ -32,15 +32,24 @@ def startup():
     db.create_tables()
     # Create default admin user if not exists
     session = db.SessionLocal()
-    if not session.query(models.User).filter_by(email="admin@local").first():
-        admin = models.User(
-            email="admin@local",
-            name="Admin",
-            hashed_password=pwd_context.hash("admin123")
-        )
-        session.add(admin)
-        session.commit()
-    session.close()
+    try:
+        if not session.query(models.User).filter_by(email="admin@local").first():
+            # Truncate password to 72 bytes for bcrypt
+            password = "admin123"
+            if len(password.encode('utf-8')) > 72:
+                password = password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
+            admin = models.User(
+                email="admin@local",
+                name="Admin",
+                hashed_password=pwd_context.hash(password)
+            )
+            session.add(admin)
+            session.commit()
+    except Exception as e:
+        print(f"Startup error: {e}")
+        session.rollback()
+    finally:
+        session.close()
 
 def verify_password(plain, hashed):
     # bcrypt has 72-byte limit
