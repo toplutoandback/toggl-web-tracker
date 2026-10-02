@@ -43,9 +43,15 @@ def startup():
     session.close()
 
 def verify_password(plain, hashed):
+    # bcrypt has 72-byte limit
+    if len(plain.encode('utf-8')) > 72:
+        plain = plain.encode('utf-8')[:72].decode('utf-8', errors='ignore')
     return pwd_context.verify(plain, hashed)
 
 def get_password_hash(password):
+    # bcrypt has 72-byte limit
+    if len(password.encode('utf-8')) > 72:
+        password = password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
     return pwd_context.hash(password)
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
