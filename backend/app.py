@@ -33,8 +33,10 @@ def startup():
     # Create default admin user if not exists
     session = db.SessionLocal()
     try:
-        if not session.query(models.User).filter_by(email="admin@local").first():
-            # Truncate password to 72 bytes for bcrypt
+        # Check if admin exists
+        admin_user = session.query(models.User).filter_by(email="admin@local").first()
+        if not admin_user:
+            # Create admin user
             password = "admin123"
             if len(password.encode('utf-8')) > 72:
                 password = password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
@@ -45,6 +47,16 @@ def startup():
             )
             session.add(admin)
             session.commit()
+            print("Created admin user")
+        else:
+            # Ensure admin password is correct
+            password = "admin123"
+            if len(password.encode('utf-8')) > 72:
+                password = password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
+            # Re-hash password to ensure it's correct
+            admin_user.hashed_password = pwd_context.hash(password)
+            session.commit()
+            print("Updated admin password")
     except Exception as e:
         print(f"Startup error: {e}")
         session.rollback()
