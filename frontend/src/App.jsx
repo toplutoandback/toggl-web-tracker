@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000';
+const API_URL = 'https://toggl-web-backend-se54.onrender.com';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token') || '');
