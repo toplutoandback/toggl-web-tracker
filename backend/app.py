@@ -49,14 +49,14 @@ def startup():
             session.commit()
             print("Created admin user")
         else:
-            # Ensure admin password is correct
+            # Ensure admin password is correct - reset to admin123
             password = "admin123"
             if len(password.encode('utf-8')) > 72:
                 password = password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
             # Re-hash password to ensure it's correct
             admin_user.hashed_password = pwd_context.hash(password)
             session.commit()
-            print("Updated admin password")
+            print("Reset admin password to admin123")
     except Exception as e:
         print(f"Startup error: {e}")
         session.rollback()
