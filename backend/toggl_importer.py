@@ -7,10 +7,7 @@ from . import db, models
 TOGGL_API = "https://api.track.toggl.com/api/v9"
 TOGGL_REPORTS_API = "https://api.track.toggl.com/reports/api/v3"
 
-def import_toggl_data(api_token, workspace_id, db_session=None):
-    if db_session is None:
-        db_session = db.SessionLocal()
-    
+def import_toggl_data(api_token, workspace_id):
     auth_str = f"{api_token}:api_token"
     encoded = base64.b64encode(auth_str.encode()).decode()
     headers = {"Authorization": f"Basic {encoded}", "Content-Type": "application/json"}
