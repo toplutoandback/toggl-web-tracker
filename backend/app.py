@@ -126,8 +126,8 @@ def health():
     return {"status": "ok"}
 
 @app.post("/import/toggl")
-def import_toggl(api_token: str, workspace_id: int, user: models.User = Depends(get_current_user)):
-    count = import_toggl_data(api_token, workspace_id, user.id)
+def import_toggl(api_token: str, workspace_id: int, user: models.User = Depends(get_current_user), db_session: Session = Depends(db.get_session)):
+    count = import_toggl_data(api_token, workspace_id, db_session)
     return {"imported": count}
 
 @app.get("/time_entries")
