@@ -22,7 +22,7 @@ def import_toggl_data(api_token, workspace_id, db_session=None):
         "page": 1,
         "per_page": 100,
         "start_date": "2026-01-01",
-        "end_date": "2026-10-01"
+        "end_date": "2026-04-01"
     }
     imported = 0
     
