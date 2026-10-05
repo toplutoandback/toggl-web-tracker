@@ -1,8 +1,6 @@
 import requests
 import base64
 from datetime import datetime
-from sqlalchemy.orm import Session
-from . import db, models
 
 TOGGL_API = "https://api.track.toggl.com/api/v9"
 TOGGL_REPORTS_API = "https://api.track.toggl.com/reports/api/v3"
@@ -34,7 +32,7 @@ def import_toggl_data(api_token, workspace_id):
             # Each entry contains time_entries array
             for time_entry in e.get('time_entries', []):
                 try:
-                    # Just count entries, don't actually import for now
+                    # Just count entries for now
                     imported += 1
                 except Exception as ex:
                     print(f"Error importing time entry: {ex}")
