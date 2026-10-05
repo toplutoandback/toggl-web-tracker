@@ -19,16 +19,54 @@ def import_toggl_data(api_token, workspace_id, db_session=None):
     url = f"{TOGGL_REPORTS_API}/workspace/{workspace_id}/search/time_entries"
     params = {
         "page": 1,
-        "per_page": 1,
+        "per_page": 100,
         "start_date": "2026-01-01",
         "end_date": "2026-04-01"
     }
+    imported = 0
     
-    # Test the API connection
-    r = requests.post(url, headers=headers, json=params)
-    if r.status_code != 200:
-        return 0
+    while True:
+        r = requests.post(url, headers=headers, json=params)
+        if r.status_code != 200:
+            break
+        entries = r.json()
+        if not entries:
+            break
+        
+        for e in entries:
+            # Each entry contains time_entries array
+            for time_entry in e.get('time_entries', []):
+                # Upsert user
+                user = db_session.query(models.User).filter_by(toggl_id=str(e['user_id'])).first()
+                if not user:
+                    user = models.User(toggl_id=str(e.get('user_id')), name=e.get('username',''))
+                    db_session.add(user)
+                    db_session.flush()
+                
+                # Upsert project
+                proj = None
+                if e.get('project_id'):
+                    proj = db_session.query(models.Project).filter_by(toggl_id=str(e['project_id'])).first()
+                    if not proj:
+                        proj = models.Project(toggl_id=str(e['project_id']), name='')
+                        db_session.add(proj)
+                        db_session.flush()
+                
+                # Create time entry
+                te = models.TimeEntry(
+                    toggl_id=str(time_entry['id']),
+                    user_id=user.id,
+                    project_id=proj.id if proj else None,
+                    description=e.get('description', ''),
+                    start_time=datetime.fromisoformat(time_entry['start']),
+                    duration_seconds=time_entry.get('seconds',0),
+                    billable=e.get('billable',False),
+                    tags=''
+                )
+                db_session.add(te)
+                imported += 1
+        
+        db_session.commit()
+        params['page'] += 1
     
-    entries = r.json()
-    imported = len(entries)
     return imported
