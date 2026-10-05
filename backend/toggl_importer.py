@@ -10,6 +10,20 @@ def import_toggl_data(api_token, workspace_id):
     encoded = base64.b64encode(auth_str.encode()).decode()
     headers = {"Authorization": f"Basic {encoded}", "Content-Type": "application/json"}
     
+    # First, fetch users from workspace
+    users_url = f"{TOGGL_REPORTS_API}/workspace/{workspace_id}/search/users"
+    users_params = {
+        "page": 1,
+        "per_page": 100
+    }
+    
+    users = {}
+    r = requests.post(users_url, headers=headers, json=users_params)
+    if r.status_code == 200:
+        users_data = r.json()
+        for user in users_data:
+            users[user['id']] = user.get('name', '')
+    
     # Use Reports API for workspace-wide time entries
     url = f"{TOGGL_REPORTS_API}/workspace/{workspace_id}/search/time_entries"
     params = {
