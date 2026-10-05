@@ -20,7 +20,7 @@ def import_toggl_data(api_token, workspace_id, db_session=None):
     url = f"{TOGGL_REPORTS_API}/workspace/{workspace_id}/search/time_entries"
     params = {
         "page": 1,
-        "per_page": 100,
+        "per_page": 1,
         "start_date": "2026-01-01",
         "end_date": "2026-04-01"
     }
